@@ -6,15 +6,20 @@ import java.sql.SQLException;
 
 public class ConnectionManager {
 
-    private static final String URL = "jdbc:mysql://localhost:8889/exemple";
+    private static final String URL = "jdbc:mysql://localhost:8889/Java_Paradise";
     private static final String USER = "root";
     private static final String PASSWORD = "root";
     private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
+    private static  ConnectionManager instance;
+    private Connection connection = null;
 
-    public ConnectionManager() {
-        loadDriver();
-        getConnection();
-        closeConnection();
+    private ConnectionManager() throws SQLException {
+        try {
+            loadDriver();
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void loadDriver() {
@@ -25,17 +30,21 @@ public class ConnectionManager {
         }
     }
 
-    private static Connection connection;
 
-    private static Connection getConnection() {
-        // Création d'une connexion à la base de données
-        connection = null;
-        try {
-            connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    public Connection getConnection() {
         return connection;
+    }
+
+    public static ConnectionManager getInstance() throws SQLException {
+        if (instance == null) {
+            System.out.println("instance est null");
+            instance = new ConnectionManager();
+        } else if (instance.getConnection().isClosed()) {
+            System.out.println("new instance");
+            instance = new ConnectionManager();
+        }
+
+        return instance;
     }
 
     public void closeConnection() {
@@ -47,3 +56,7 @@ public class ConnectionManager {
     }
 
 }
+
+
+
+
